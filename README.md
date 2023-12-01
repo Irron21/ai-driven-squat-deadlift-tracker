@@ -1,4 +1,4 @@
-# AI-Driven Deadlift Pose Counter
+# AI-Driven Deadlift Tracker
 
 This AI-driven Deadlift Pose Counter is designed to analyze deadlift exercises using Mediapipe's pose estimation. The program tracks the user's body movements, specifically focusing on key body landmarks to count repetitions accurately and calculate the average speed per repetition.
 
