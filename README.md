@@ -67,7 +67,7 @@ The project employs computer vision techniques and pose estimation algorithms to
 
 ## Contributors
 
-- [Your Name](https://github.com/irron21)
+- [Irron21](https://github.com/irron21)
 
 ## License
 
