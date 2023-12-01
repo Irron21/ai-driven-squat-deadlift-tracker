@@ -64,6 +64,8 @@ The project employs computer vision techniques and pose estimation algorithms to
 
 - The camera should be positioned to capture the entire body while ensuring the hips are visible at the lockout position.
 - Adequate lighting and camera angle are essential for accurate pose estimation.
+#### Sample
+![Sample](https://cdn.discordapp.com/attachments/969505484224741397/1180167590996344873/image.png?ex=657c6fb8&is=6569fab8&hm=811e9602e7dd5c6fd3326a60c9246bf9edd3a7cdf7fc7a3599c3ae5efd807318&)
 
 ## Contributors
 
