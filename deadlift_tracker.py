@@ -137,8 +137,14 @@ class DeadliftTracker:
             counter += 1
             output_filename = f"{base_filename}_{counter}{file_extension}"
             
+        directory = 'squat_analyzed_mp4'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        output_video_path = os.path.join(directory, output_filename)
+
+        fps = self.capture.get(cv.CAP_PROP_FPS)
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
-        output_video = cv.VideoWriter(output_filename, fourcc, 30.0, (self.width, self.height)) 
+        output_video = cv.VideoWriter(output_video_path, fourcc, fps, (self.width, self.height)) 
 
         thread1 = threading.Thread(target=self.process_image, args=(output_video,))
         thread1.start()
