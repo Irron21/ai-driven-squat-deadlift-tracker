@@ -95,29 +95,11 @@ class DeadliftTracker:
                     left_hip = landmarks[self.mp_pose.PoseLandmark.LEFT_HIP.value]
                     left_knee = landmarks[self.mp_pose.PoseLandmark.LEFT_KNEE.value]
 
-                    left_shoulder_x, left_shoulder_y = int(left_shoulder.x * image.shape[1]), int(left_shoulder.y * image.shape[0])
-                    left_hip_x, left_hip_y = int(left_hip.x * image.shape[1]), int(left_hip.y * image.shape[0])
-                    left_knee_x, left_knee_y = int(left_knee.x * image.shape[1]), int(left_knee.y * image.shape[0])
-
-                    # Draw landmarks on the image
-                    cv.circle(image, (left_shoulder_x, left_shoulder_y), 5, (255, 0, 0), -1)  # Left shoulder
-                    cv.circle(image, (left_hip_x, left_hip_y), 5, (0, 0, 255), -1)  # Left hip
-                    cv.circle(image, (left_knee_x, left_knee_y), 5, (0, 255, 0), -1)  # Left knee
-
-                    # Draw lines between the landmarks
-                    cv.line(image, (left_shoulder_x, left_shoulder_y), (left_hip_x, left_hip_y), (255, 0, 0), 2)  # Between shoulder and hip
-                    cv.line(image, (left_hip_x, left_hip_y), (left_knee_x, left_knee_y), (0, 255, 0), 2)  # Between hip and knee
-                    cv.line(image, (left_hip_x, 0), (left_hip_x, self.height), (0, 0, 0), 2)  # Horizontal line at knee level
-
                     angle = self.calculate_angle(
                         [left_shoulder.x, left_shoulder.y],
                         [left_hip.x, left_hip.y],
                         [left_knee.x, left_knee.y]
                     )
-
-                    cv.putText(image, str(round(angle)), 
-                           tuple(np.multiply([left_hip.x, left_hip.y], [int(self.width), int(self.height)]).astype(int)), 
-                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv.LINE_AA)
                     
                     def process_deadlift(bottom_degree):
                         lockout_angle = 170
