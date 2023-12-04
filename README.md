@@ -1,76 +1,49 @@
-# AI-Driven Deadlift Tracker
+# Squat & Deadlift Tracker
 
-This AI-driven Deadlift Pose Counter is designed to analyze deadlift exercises using Mediapipe's pose estimation. The program tracks the user's body movements, specifically focusing on key body landmarks to count repetitions accurately and calculate the average speed per repetition.
+This repository consists of Python scripts designed for exercise movement tracking using computer vision techniques. The scripts facilitate the tracking of Squat and Deadlift exercises, allowing users to select an exercise for analysis.
 
-## Overview
+## Files
 
-The project employs computer vision techniques and pose estimation algorithms to monitor and analyze a user's pose while performing deadlift exercises. The system identifies crucial body landmarks, such as shoulders, hips, and knees, to infer specific actions during the deadlift routine.
+### `main.py`
 
-## Requirements
+- Controls the exercise selection and initiates the tracking process.
+- Enables users to choose between different exercises for tracking.
 
-- Python 3.x
-- OpenCV (`cv2`)
-- Mediapipe (`mediapipe`)
-- NumPy (`numpy`)
+### `squat_tracker.py`
 
-## Installation
+- Contains the `SquatTracker` class to monitor and track squat movements.
+- Utilizes Mediapipe and OpenCV to estimate poses and visualize tracking information.
+- Captures user-provided video input for squat exercise analysis.
+- Calculates angles and tracks squat stages and repetitions.
 
-1. Clone the repository:
+### `deadlift_tracker.py`
 
-    ```bash
-    git clone https://github.com/irron21/deadlift-pose-counter.git
-    cd deadlift-pose-counter
-    ```
-
-2. Install dependencies:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
+- Implements the `DeadliftTracker` class for monitoring and tracking deadlift exercise variations (Sumo and Conventional).
+- Utilizes Mediapipe and OpenCV to estimate poses and visualize tracking information.
+- Captures user-provided video input for deadlift exercise analysis.
+- Calculates angles and tracks deadlift stages and repetitions based on the chosen deadlift type (Sumo or Conventional).
 
 ## Usage
 
-1. Run the script:
+1. Ensure Python 3.x is installed.
+2. Install the required libraries using `pip install -r requirements.txt`.
+3. Run `main.py`.
+4. Choose the exercise to track:
+   - `1` for Squat
+   - `2` for Bench Press (Placeholder)
+   - `3` for Deadlift
+5. Follow the prompts to input the video file path and type of deadlift (Sumo/Conventional).
 
-    ```bash
-    python deadlift_pose_counter.py
-    ```
+## Additional Notes
 
-2. Select the deadlift type: `Sumo` or `Conventional`.
-3. Provide the directory path to the video capturing the deadlift exercise.
+- The `main.py` script initiates exercise tracking threads based on user input.
+- `squat_tracker.py` tracks squat exercises, providing real-time feedback on stages, repetitions, and average speed.
+- `deadlift_tracker.py` monitors deadlift exercises, distinguishing between Sumo and Conventional types for accurate tracking.
 
-## Functionalities
+## Contribution
 
-### Pose Estimation
+Feel free to contribute to this project by improving tracking accuracy, extending functionality to support additional exercises, or enhancing the user interface.
 
-- Utilizes Mediapipe's pose estimation to identify and track specific body landmarks during the deadlift.
-- Landmarks include shoulders, hips, and knees, crucial for deadlift pose recognition.
+---
 
-### Repetition Counting
-
-- Counts the number of repetitions completed during the deadlift routine.
-- Identifies specific angles between body parts to determine the start, ongoing, and lockout stages of each repetition.
-
-### Performance Analysis
-
-- Calculates and displays the average speed per repetition in seconds based on the time taken between stages of the deadlift.
-
-### Real-time Visualization
-
-- Provides a live feed displaying the user's pose estimation, identified landmarks, and current stage of the deadlift.
-- Renders visual cues like circles and lines to denote the detected body parts and their movements.
-
-### Video Requirements
-
-- The camera should be positioned to capture the entire body while ensuring the hips are visible at the lockout position.
-- Adequate lighting and camera angle are essential for accurate pose estimation.
-#### Sample
-![Sample](https://cdn.discordapp.com/attachments/969505484224741397/1180167590996344873/image.png?ex=657c6fb8&is=6569fab8&hm=811e9602e7dd5c6fd3326a60c9246bf9edd3a7cdf7fc7a3599c3ae5efd807318&)
-
-## Contributors
-
-- [Irron21](https://github.com/irron21)
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+**Disclaimer:** This project is for demonstration purposes and may require further enhancements for robustness in real-world scenarios.
