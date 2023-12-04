@@ -4,6 +4,8 @@ import numpy as np
 import time
 import os
 import threading
+import openpyxl
+import datetime
 
 class DeadliftTracker:
     def __init__(self):
@@ -14,11 +16,14 @@ class DeadliftTracker:
         self.stage = None
         self.counter = 0
         self.rep_speeds = [] 
+        self.average_speed = 0
         self.current_rep_time = 0  
         self.last_rep_time = 0 
         self.waitKey_delay = 1
         self.width = 0
         self.height = 0
+        self.date = None
+        self.weight = None
 
     def calculate_angle(self, start, mid, end):
         start = np.array(start)
@@ -33,31 +38,73 @@ class DeadliftTracker:
 
         return angle
 
-    def start_tracking(self):
-        self.get_deadlift_type()
-        self.initialize_video_capture()
-        self.width = int(self.capture.get(3))
-        self.height = int(self.capture.get(4))
+    def write_to_excel(self):
+        # Get the directory path of the main program
+        program_dir = os.path.dirname(os.path.abspath(__name__))
 
-        counter = 1
-        base_filename = 'deadlift_analyzed'
-        file_extension = '.mp4'
-        output_filename = f"{base_filename}_{counter}{file_extension}"
-        while os.path.exists(output_filename):
-            counter += 1
-            output_filename = f"{base_filename}_{counter}{file_extension}"
-            
-        fourcc = cv.VideoWriter_fourcc(*'mp4v')
-        output_video = cv.VideoWriter(output_filename, fourcc, 30.0, (self.width, self.height))
+        # Construct the full path for the Excel file in the same directory as the program
+        excel_file_path = os.path.join(program_dir, 'deadlift_data.xlsx')
 
-        thread1 = threading.Thread(target=self.process_image, args=(output_video,))
-        thread1.start()
+        try:
+            # Check if the Excel file already exists; if so, load it
+            if os.path.exists(excel_file_path):
+                wb = openpyxl.load_workbook(excel_file_path)
+                sheet = wb.active
+                print("Excel file exists")
+            else:
+                print("Excel file does not exist, creating new workbook")
+                wb = openpyxl.Workbook()
+                sheet = wb.active
+                sheet['A1'] = 'Date'
+                sheet['B1'] = 'Weight Loaded (kg/lb)'
+                sheet['C1'] = 'Type'
+                sheet['D1'] = 'Rep Speed (sec/rep)' 
+                sheet['E1'] = 'Avg. Speed (sec/rep)'        
+
+            next_row = sheet.max_row + 1
+
+            sheet.cell(row=next_row, column=1).value = self.date
+            sheet.cell(row=next_row, column=2).value = self.weight
+            sheet.cell(row=next_row, column=3).value = self.deadlift_type
+            sheet.cell(row=next_row, column=5).value = self.average_speed
+            for i, rep_speed in enumerate(self.rep_speeds):
+                sheet.cell(row=next_row + i, column=4).value = rep_speed
+
+            wb.save(excel_file_path)
+            print(f"Data successfully saved to {excel_file_path}")
+        except Exception as e:
+            print(f"Error while saving data: {str(e)}")
 
     def get_deadlift_type(self):
         while True:
             self.deadlift_type = input("Which type of deadlift (Sumo/Conventional)? ")
             if self.deadlift_type.lower() in ("sumo", "conventional"):
                 break
+    
+    def get_date(self):
+        valid_date = False
+        while not valid_date:
+            self.date = input("Enter the date (YYYY-MM-DD): ")
+            try:
+                datetime.datetime.strptime(self.date, '%Y-%m-%d')
+                valid_date = True
+            except ValueError:
+                print("Invalid date format. Please enter a valid date in YYYY-MM-DD format.")
+
+    def get_weight_loaded(self):
+        valid_weight = False
+        while not valid_weight:
+            self.weight = input("Enter the weight loaded on the bar (kg/lb): ")
+            try:
+                # Assuming the user provides weight in a format like "100 kg" or "225 lb"
+                weight, unit = self.weight.split()
+                weight = float(weight)
+                if unit.lower() in ('kg', 'lb'):
+                    valid_weight = True
+                else:
+                    print("Invalid weight unit. Please enter 'kg' or 'lb'.")
+            except ValueError:
+                print("Invalid input. Please enter the weight in the format '100 kg' or '225 lb'.")
 
     def initialize_video_capture(self):
         video_extensions = [".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".mpeg", ".mpg",
@@ -73,6 +120,28 @@ class DeadliftTracker:
             else:
                 print("File not found. Please enter a valid file path.")
         self.capture = cv.VideoCapture(video)
+
+    def start_tracking(self):
+        self.initialize_video_capture()
+        self.get_deadlift_type()
+        self.get_date()
+        self.get_weight_loaded()       
+        self.width = int(self.capture.get(3))
+        self.height = int(self.capture.get(4))
+
+        counter = 1
+        base_filename = 'deadlift_analyzed'
+        file_extension = '.mp4'
+        output_filename = f"{base_filename}_{counter}{file_extension}"
+        while os.path.exists(output_filename):
+            counter += 1
+            output_filename = f"{base_filename}_{counter}{file_extension}"
+            
+        fourcc = cv.VideoWriter_fourcc(*'mp4v')
+        output_video = cv.VideoWriter(output_filename, fourcc, 30.0, (self.width, self.height)) 
+
+        thread1 = threading.Thread(target=self.process_image, args=(output_video,))
+        thread1.start()
 
     def process_image(self, output_video):
         with self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -113,7 +182,8 @@ class DeadliftTracker:
                             self.counter += 1
                             self.last_rep_time = time.time() 
                             rep_time = (self.last_rep_time - self.current_rep_time)
-                            self.rep_speeds.append(rep_time)       
+                            self.rep_speeds.append(rep_time)
+                                
 
                     if self.deadlift_type == "conventional":
                         process_deadlift(40)
@@ -133,8 +203,8 @@ class DeadliftTracker:
                 
                 cv.putText(image, 'AVG SPEED', (170, 25), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
                 if len(self.rep_speeds) > 0:
-                    average_speed = sum(self.rep_speeds) / len(self.rep_speeds)            
-                    cv.putText(image, f'{average_speed:.2f} sec/rep', (170, 50), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1, cv.LINE_AA)
+                    self.average_speed = sum(self.rep_speeds) / len(self.rep_speeds)            
+                    cv.putText(image, f'{self.average_speed:.2f} sec/rep', (170, 50), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1, cv.LINE_AA)
 
                 output_video.write(image)
 
@@ -142,6 +212,7 @@ class DeadliftTracker:
                 if cv.waitKey(self.waitKey_delay) & 0xFF == ord('x'):
                     break
 
+        self.write_to_excel()  
         output_video.release()
         self.capture.release()
         cv.destroyAllWindows()
