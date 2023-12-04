@@ -16,7 +16,7 @@ class DeadliftTracker:
         self.rep_speeds = [] 
         self.current_rep_time = 0  
         self.last_rep_time = 0 
-        self.waitKey_delay = 5
+        self.waitKey_delay = 1
         self.width = 0
         self.height = 0
 
@@ -107,6 +107,7 @@ class DeadliftTracker:
                     # Draw lines between the landmarks
                     cv.line(image, (left_shoulder_x, left_shoulder_y), (left_hip_x, left_hip_y), (255, 0, 0), 2)  # Between shoulder and hip
                     cv.line(image, (left_hip_x, left_hip_y), (left_knee_x, left_knee_y), (0, 255, 0), 2)  # Between hip and knee
+                    cv.line(image, (left_hip_x, 0), (left_hip_x, self.height), (0, 0, 0), 2)  # Horizontal line at knee level
 
                     angle = self.calculate_angle(
                         [left_shoulder.x, left_shoulder.y],
@@ -114,6 +115,10 @@ class DeadliftTracker:
                         [left_knee.x, left_knee.y]
                     )
 
+                    cv.putText(image, str(round(angle)), 
+                           tuple(np.multiply([left_hip.x, left_hip.y], [int(self.width), int(self.height)]).astype(int)), 
+                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv.LINE_AA)
+                    
                     def process_deadlift(bottom_degree):
                         lockout_angle = 170
                         if angle < bottom_degree and self.stage != "bottom":
