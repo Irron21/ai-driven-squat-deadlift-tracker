@@ -16,7 +16,7 @@ This repository consists of Python scripts designed for exercise movement tracki
 - Captures user-provided video input for squat exercise analysis.
 - Calculates angles and tracks squat stages and repetitions.
 #### Video Notes
-- Ensure the subject is seen throughout the video (not too far ot too close)
+- Ensure the subject is seen throughout the video (not too far or too close)
 - Rep is started once knee to hip is parallel or below parallel to the ground and counted once the knees are fully lockout
 
 ### `deadlift_tracker.py`
@@ -26,7 +26,7 @@ This repository consists of Python scripts designed for exercise movement tracki
 - Captures user-provided video input for deadlift exercise analysis.
 - Calculates angles and tracks deadlift stages and repetitions based on the chosen deadlift type (Sumo or Conventional).
 #### Video Notes
-- Ensure the subject is seen throughout the video (not too far ot too close)
+- Ensure the subject is seen throughout the video (not too far or too close)
 - Ensure the hips are seen on the top of the movement (lockout) for accurate measurements and not covered by the barbell plates
 - Rep is counted once lockout is achieved (Back is fully extended)
   [Sample](https://cdn.discordapp.com/attachments/969505484224741397/1180167590996344873/image.png?ex=657c6fb8&is=6569fab8&hm=811e9602e7dd5c6fd3326a60c9246bf9edd3a7cdf7fc7a3599c3ae5efd807318&)
