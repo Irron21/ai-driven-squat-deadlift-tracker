@@ -121,30 +121,40 @@ class SquatTracker:
         base_filename = 'squat_analyzed'
         file_extension = '.mp4'
         output_filename = f"{base_filename}_{counter}{file_extension}"
-        while os.path.exists(output_filename):
+        directory = 'squat_analyzed_mp4'
+
+        while os.path.exists(os.path.join(directory, output_filename)):
             counter += 1
             output_filename = f"{base_filename}_{counter}{file_extension}"
 
-        directory = 'deadlift_analyzed_mp4'
         if not os.path.exists(directory):
             os.makedirs(directory)
         output_video_path = os.path.join(directory, output_filename)
 
-        fps = self.capture.get(cv.CAP_PROP_FPS)
+        fps = self.capture.get(cv.CAP_PROP_FPS) / 2
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
         output_video = cv.VideoWriter(output_video_path, fourcc, fps, (self.width, self.height))
 
-        thread1 = threading.Thread(target=self.process_image, args=(output_video,))
+        frame_skip = 2
+
+        thread1 = threading.Thread(target=self.process_image, args=(output_video,frame_skip))
         thread1.start()
 
-    def process_image(self, output_video):
+    def process_image(self, output_video, frame_skip):
+        frame_count = 0
         with self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
             while self.capture.isOpened():
                 ret, frame = self.capture.read()
 
                 if not ret:
                     break  
+                    
+                if frame_count % frame_skip != 0:
+                    frame_count += 1
+                    continue
 
+                frame_count += 1
+                
                 image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
                 image.flags.writeable = False
                 results = pose.process(image)
@@ -166,20 +176,20 @@ class SquatTracker:
                     
                     if angle < 30 and self.stage != "bottom":
                         self.stage = "bottom"                       
-                    if 30 < angle < 130 and self.stage == "bottom":
+                    if 30 < angle < 120 and self.stage == "bottom":
                         self.stage = "ongoing"
                         self.current_rep_time = time.time()
-                    if angle > 130 and self.stage == "ongoing":
+                    if angle > 120 and self.stage == "ongoing":
                         self.stage = "lockout"
                         self.counter += 1
                         self.last_rep_time = time.time() 
                         rep_time = (self.last_rep_time - self.current_rep_time)
-                        self.rep_speeds.append(round(rep_time, 2))
+                        self.rep_speeds.append(round(rep_time * frame_skip, 2))
 
                 except: 
                     pass
 
-                cv.rectangle(image, (0, 0), (int(self.width), 60), (0,0,0), -1)
+                cv.rectangle(image, (0, 0), (int(self.width), 110), (0,0,0), -1)
                 cv.putText(image, "REPS", (5, 25), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
                 cv.putText(image, str(self.counter), (5, 50), cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
 
@@ -191,6 +201,11 @@ class SquatTracker:
                     self.average_speed = sum(self.rep_speeds) / len(self.rep_speeds)            
                     cv.putText(image, f'{self.average_speed:.2f} sec/rep', (170, 50), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 1, cv.LINE_AA)
 
+                cv.putText(image, "DATE", (5, 75), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+                cv.putText(image, self.date, (5, 100), cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
+                cv.putText(image, "WEIGHT", (150, 75), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+                cv.putText(image, self.weight, (150, 100), cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
+                
                 output_video.write(image)
 
                 cv.imshow("Live Feed", image)
