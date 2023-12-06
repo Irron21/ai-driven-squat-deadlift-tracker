@@ -174,10 +174,6 @@ class SquatTracker:
                         [left_ankle.x, left_ankle.y]
                     )
                     
-                    cv.putText(image, str(round(angle)), 
-                           tuple(np.multiply([left_knee.x, left_knee.y], [int(self.width), int(self.height)]).astype(int)), 
-                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv.LINE_AA)
-                    
                     if angle < 40 and self.stage != "bottom":
                         self.stage = "bottom"                       
                     if 40 < angle < 160 and self.stage == "bottom":
