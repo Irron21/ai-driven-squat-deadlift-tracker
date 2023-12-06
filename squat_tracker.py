@@ -164,22 +164,26 @@ class SquatTracker:
                 try:
                     landmarks = results.pose_landmarks.landmark
                     
-                    left_shoulder = landmarks[self.mp_pose.PoseLandmark.LEFT_SHOULDER.value]
                     left_hip = landmarks[self.mp_pose.PoseLandmark.LEFT_HIP.value]
                     left_knee = landmarks[self.mp_pose.PoseLandmark.LEFT_KNEE.value]
+                    left_ankle = landmarks[self.mp_pose.PoseLandmark.LEFT_ANKLE.value]
 
                     angle = self.calculate_angle(
-                        [left_shoulder.x, left_shoulder.y],
                         [left_hip.x, left_hip.y],
-                        [left_knee.x, left_knee.y]
+                        [left_knee.x, left_knee.y],
+                        [left_ankle.x, left_ankle.y]
                     )
                     
-                    if angle < 30 and self.stage != "bottom":
+                    cv.putText(image, str(round(angle)), 
+                           tuple(np.multiply([left_knee.x, left_knee.y], [int(self.width), int(self.height)]).astype(int)), 
+                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv.LINE_AA)
+                    
+                    if angle < 40 and self.stage != "bottom":
                         self.stage = "bottom"                       
-                    if 30 < angle < 120 and self.stage == "bottom":
+                    if 40 < angle < 160 and self.stage == "bottom":
                         self.stage = "ongoing"
                         self.current_rep_time = time.time()
-                    if angle > 120 and self.stage == "ongoing":
+                    if angle > 160 and self.stage == "ongoing":
                         self.stage = "lockout"
                         self.counter += 1
                         self.last_rep_time = time.time() 
