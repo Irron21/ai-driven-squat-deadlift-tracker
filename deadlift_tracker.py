@@ -152,6 +152,7 @@ class DeadliftTracker:
 
         thread1 = threading.Thread(target=self.process_image, args=(output_video, frame_skip))
         thread1.start()
+        thread1.join()
 
     def process_image(self, output_video, frame_skip):
         frame_count = 0

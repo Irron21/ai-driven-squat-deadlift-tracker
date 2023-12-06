@@ -139,6 +139,7 @@ class SquatTracker:
 
         thread1 = threading.Thread(target=self.process_image, args=(output_video,frame_skip))
         thread1.start()
+        thread1.join()
 
     def process_image(self, output_video, frame_skip):
         frame_count = 0
@@ -173,6 +174,7 @@ class SquatTracker:
                         [left_knee.x, left_knee.y],
                         [left_ankle.x, left_ankle.y]
                     )
+                    
                     
                     if angle < 40 and self.stage != "bottom":
                         self.stage = "bottom"                       
